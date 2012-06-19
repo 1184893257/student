@@ -28,19 +28,24 @@ public class Student {
 	 */
 	protected String address;
 	/**
+	 * µç»°
+	 */
+	protected String tel;
+	/**
 	 * E-mail
 	 */
 	protected String email;
-	
+
 	public Student(String no, String name, int age, String sex, Date birthday,
-			String address, String email) {
+			String address, String tel, String email) {
 		this.no = no;
 		this.name = name;
 		this.age = age;
 		this.sex = sex;
 		this.birthday = birthday;
 		this.address = address;
+		this.tel = tel;
 		this.email = email;
 	}
-	
+
 }
