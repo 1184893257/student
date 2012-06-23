@@ -52,7 +52,7 @@ public class DB {
 			ps.setString(1, name);
 			ResultSet rs = ps.executeQuery();
 
-			if (rs.next() && rs.getString("PASSWORD").equals(password))
+			if (rs.next() && rs.getString("PASSWORD").trim().equals(password))
 				correct = true;
 			ps.close();
 		} catch (SQLException e) {
@@ -209,11 +209,11 @@ public class DB {
 			Calendar birthday = (Calendar) now.clone();
 			while (rs.next()) {
 				birthday.setTimeInMillis(rs.getDate("BIRTHDAY").getTime());
-				t = new Student(rs.getString("NO"), rs.getString("NAME"),
-						birthday.get(Calendar.YEAR) - year,
-						rs.getString("Sex"), rs.getDate("BIRTHDAY"),
-						rs.getString("ADDRESS"), rs.getString("TEL"),
-						rs.getString("EMAIL"));
+				t = new Student(rs.getString("NO").trim(), rs.getString("NAME")
+						.trim(), year - birthday.get(Calendar.YEAR), rs
+						.getString("Sex").trim(), rs.getDate("BIRTHDAY"), rs
+						.getString("ADDRESS").trim(), rs.getString("TEL")
+						.trim(), rs.getString("EMAIL").trim());
 				ans.add(t);
 			}
 		} catch (SQLException e) {
