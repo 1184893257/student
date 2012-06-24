@@ -5,6 +5,7 @@ import java.awt.event.*;
 import java.util.*;
 
 import javax.swing.*;
+import javax.swing.table.TableColumnModel;
 
 import data.*;
 
@@ -20,9 +21,21 @@ public class MainFrame extends JFrame implements ActionListener {
 	 */
 	protected DB database;
 	/**
+	 * 显示学生信息的表格
+	 */
+	protected JTable table;
+	/**
 	 * 包含要显示的学生的信息的表格数据模型
 	 */
 	protected StudentTableModel tableModel;
+	/**
+	 * 表格的右键菜单
+	 */
+	protected JPopupMenu menu;
+	/**
+	 * 单个学生信息的添加\修改对话框
+	 */
+	protected StudentDialog dialog;
 
 	// 一下是与排序相关的单选可选按钮
 	/**
@@ -56,6 +69,7 @@ public class MainFrame extends JFrame implements ActionListener {
 		super("学生信息管理系统");
 
 		this.database = database;
+		this.dialog = new StudentDialog(this);
 
 		// 设置布局管理器
 		GridBagLayout layout = new GridBagLayout();
@@ -66,6 +80,7 @@ public class MainFrame extends JFrame implements ActionListener {
 		addMenu();
 
 		// 添加搜索条
+		this.showAll = true;
 		JPanel filter = this.buildFilterPanel();
 		c.gridwidth = GridBagConstraints.REMAINDER;
 		c.fill = GridBagConstraints.HORIZONTAL;
@@ -80,16 +95,62 @@ public class MainFrame extends JFrame implements ActionListener {
 		layout.setConstraints(sort, c);
 		add(sort);
 
-		// 添加表格
+		// 获得所有学生,建立表格
 		this.students = database.getAllStudent();
 		sort(students);
 		this.tableModel = new StudentTableModel(students);
-		JScrollPane table = new JScrollPane(new JTable(this.tableModel));
+		table = new JTable(this.tableModel);
+
+		// 添加表格的右键菜单
+		menu = this.buildTableMenu();
+		table.addMouseListener(new MouseAdapter() {
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				if (e.isPopupTrigger()) {
+					menu.show(e.getComponent(), e.getX(), e.getY());
+				}
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				if (e.isPopupTrigger()) {
+					menu.show(e.getComponent(), e.getX(), e.getY());
+				}
+			}
+
+		});
+
+		// 表格监听delete按键删除一个学生
+		table.addKeyListener(new KeyAdapter() {
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_DELETE)
+					remove();
+			}
+
+		});
+
+		// 设置各列的宽度
+		TableColumnModel colModel = table.getColumnModel();
+		colModel.getColumn(0).setPreferredWidth(70);
+		colModel.getColumn(1).setPreferredWidth(50);
+		colModel.getColumn(2).setPreferredWidth(30);
+		colModel.getColumn(3).setPreferredWidth(30);
+		colModel.getColumn(4).setPreferredWidth(70);
+		colModel.getColumn(5).setPreferredWidth(200);
+		colModel.getColumn(6).setPreferredWidth(100);
+		colModel.getColumn(7).setPreferredWidth(150);
+
+		// 放置表格
+		JScrollPane tablePane = new JScrollPane(table);
+		tablePane.setPreferredSize(new Dimension(700, 500));
 		c.fill = GridBagConstraints.BOTH;
 		c.weighty = 1.0;
 		c.gridheight = GridBagConstraints.REMAINDER;
-		layout.setConstraints(table, c);
-		add(table);
+		layout.setConstraints(tablePane, c);
+		add(tablePane);
 
 		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		pack();
@@ -107,6 +168,9 @@ public class MainFrame extends JFrame implements ActionListener {
 		JMenuItem exit = new JMenuItem("退出");
 		JMenuItem author = new JMenuItem("作者");
 
+		admin.setActionCommand("admin");
+		exit.setActionCommand("exit");
+		author.setActionCommand("author");
 		admin.addActionListener(this);
 		exit.addActionListener(this);
 		author.addActionListener(this);
@@ -134,11 +198,14 @@ public class MainFrame extends JFrame implements ActionListener {
 
 		// 生成组件
 		filter = new JTextField("这里输入学号或姓名", 20);
-		JButton filterByName = new JButton("按学号查询");
-		JButton filterByNo = new JButton("按姓名查询");
+		JButton filterByNo = new JButton("按学号查询");
+		JButton filterByName = new JButton("按姓名查询");
 		JButton showAll = new JButton("显示全部学生");
 
 		// 添加事件监听器
+		filterByName.setActionCommand("filterByName");
+		filterByNo.setActionCommand("filterByNo");
+		showAll.setActionCommand("showAll");
 		filterByName.addActionListener(this);
 		filterByNo.addActionListener(this);
 		showAll.addActionListener(this);
@@ -180,16 +247,19 @@ public class MainFrame extends JFrame implements ActionListener {
 		// 生成组件
 		c.fill = GridBagConstraints.HORIZONTAL;
 		nameSort = new JRadioButton("按姓名排序");
-		JRadioButton noSort = new JRadioButton("按学号排序");
+		JRadioButton noSort = new JRadioButton("按学号排序", true);
 		dec = new JCheckBox("逆序");
-
-		// 添加事件监听器
-		nameSort.addActionListener(this);
-		noSort.addActionListener(this);
-		dec.addActionListener(this);
 		ButtonGroup group = new ButtonGroup();
 		group.add(nameSort);
 		group.add(noSort);
+
+		// 添加事件监听器
+		nameSort.setActionCommand("resort");
+		noSort.setActionCommand("resort");
+		dec.setActionCommand("resort");
+		nameSort.addActionListener(this);
+		noSort.addActionListener(this);
+		dec.addActionListener(this);
 
 		// 放置组件
 		c.gridheight = GridBagConstraints.REMAINDER;
@@ -204,6 +274,20 @@ public class MainFrame extends JFrame implements ActionListener {
 		layout.setConstraints(dec, c);
 		ans.add(dec);
 
+		return ans;
+	}
+
+	protected JPopupMenu buildTableMenu() {
+		JPopupMenu ans = new JPopupMenu();
+		String[] show = { "添加", "删除", "修改" };
+		String[] action = { "add", "remove", "modify" };
+		int i;
+		for (i = 0; i < show.length; ++i) {
+			JMenuItem item = new JMenuItem(show[i]);
+			item.setActionCommand(action[i]);
+			item.addActionListener(this);
+			ans.add(item);
+		}
 		return ans;
 	}
 
@@ -233,7 +317,7 @@ public class MainFrame extends JFrame implements ActionListener {
 					visibleStudents.add(stu);
 		} else {// 显示学号是nameOrNo的学生
 			for (Student stu : students)
-				if (nameOrNo.equals(stu.name))
+				if (nameOrNo.equals(stu.no))
 					visibleStudents.add(stu);
 		}
 
@@ -241,8 +325,122 @@ public class MainFrame extends JFrame implements ActionListener {
 		this.tableModel.showStudents(visibleStudents);
 	}
 
+	/**
+	 * 添加一个学生
+	 */
+	protected void add() {
+		if (!dialog.showAddDialog())
+			return;// 用户取消了这次对话
+
+		// 对数据库进行操作,如果成功则添加学生到students中
+		if (database.addStudent(dialog.student)) {
+			students.add(dialog.student);
+			this.updateDisplay();
+		} else
+			JOptionPane.showMessageDialog(this, "可能是添加的学生的学号与已有学生的学号冲突了",
+					"添加学生失败", JOptionPane.WARNING_MESSAGE);
+	}
+
+	/**
+	 * 修改一个学生的信息
+	 */
+	protected void modify() {
+		// 获得选中的要修改的行
+		int row = this.table.getSelectedRow();
+		if (row < 0)
+			return;
+
+		// 获得要修改的学生的信息
+		final String no = (String) tableModel.getValueAt(row, 0);
+		Student isToModify = null;
+		for (Student e : students)
+			if (e.no.equals(no)) {
+				isToModify = e;
+				break;
+			}
+
+		if (!dialog.showModifyDialog(isToModify))
+			return;// 如果用户取消对话,则返回
+
+		// 对数据库修改成功的话就将旧的学生信息删除,添加新的学生信息
+		if (database.modifyStudent(dialog.editingNo, dialog.student)) {
+			students.remove(isToModify);
+			students.add(dialog.student);
+			this.updateDisplay();
+		} else
+			JOptionPane.showMessageDialog(this, "可能是添加的学生的学号与已有学生的学号冲突了",
+					"添加学生失败", JOptionPane.WARNING_MESSAGE);
+	}
+
+	/**
+	 * 删除选中的学生
+	 */
+	protected void remove() {
+		// 获得选中的要删除的行
+		int row = this.table.getSelectedRow();
+		if (row < 0)
+			return;
+
+		// 获得要删除的学生的学号
+		final String no = (String) tableModel.getValueAt(row, 0);
+
+		// 在数据库和students中删除这个学生
+		database.delStudent(no);
+		Iterator<Student> it = students.iterator();
+		while (it.hasNext())
+			if (it.next().no.equals(no)) {
+				it.remove();
+				break;
+			}
+		this.updateDisplay();
+	}
+
+	protected class doActions implements Runnable {
+		protected String action;
+
+		public doActions(String action) {
+			this.action = action;
+		}
+
+		@Override
+		public void run() {
+			if (action.equals("exit"))
+				dispose();
+			else if (action.equals("resort"))
+				MainFrame.this.updateDisplay();
+			else if (action.equals("admin"))
+				;// TODO 弹出管理员管理窗体
+			else if (action.equals("author"))
+				;// TODO 弹出作者信息
+			else if (action.equals("add"))
+				add();
+			else if (action.equals("remove"))
+				remove();
+			else if (action.equals("modify"))
+				modify();
+			else if (action.equals("filterByName")) {
+				showAll = false;
+				MainFrame.this.filterByName = true;
+				nameOrNo = MainFrame.this.filter.getText();
+				MainFrame.this.updateDisplay();
+			} else if (action.equals("filterByNo")) {
+				showAll = false;
+				MainFrame.this.filterByName = false;
+				nameOrNo = MainFrame.this.filter.getText();
+				MainFrame.this.updateDisplay();
+			} else if (action.equals("showAll")) {
+				showAll = true;
+				MainFrame.this.updateDisplay();
+			} else
+				JOptionPane.showMessageDialog(MainFrame.this,
+						"未知的动作:" + action, "程序出错", JOptionPane.ERROR_MESSAGE);
+			// TODO delete this
+			// JOptionPane.show
+		}
+	}
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		System.out.println(e.getActionCommand());
+		SwingUtilities.invokeLater(new doActions(e.getActionCommand()));
 	}
 }
