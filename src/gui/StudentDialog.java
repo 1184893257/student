@@ -247,7 +247,7 @@ public class StudentDialog extends JDialog implements ActionListener {
 		cal.setTimeInMillis(student.birthday.getTime());
 		int year, month, day;
 		year = cal.get(Calendar.YEAR);
-		month = cal.get(Calendar.MONTH);
+		month = cal.get(Calendar.MONTH) + 1;
 		day = cal.get(Calendar.DATE);
 		this.year.setSelectedItem(year);
 		this.month.setSelectedItem(month);

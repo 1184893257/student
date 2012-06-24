@@ -40,6 +40,10 @@ public class MainFrame extends JFrame implements ActionListener {
 	 * 管理员窗体
 	 */
 	protected AdminFrame admin;
+	/**
+	 * 作者信息的窗体
+	 */
+	protected Author author;
 
 	// 一下是与排序相关的单选可选按钮
 	/**
@@ -68,6 +72,16 @@ public class MainFrame extends JFrame implements ActionListener {
 	 * 条件
 	 */
 	protected String nameOrNo;
+	
+	/**
+	 * 将本窗体放置在屏幕中央
+	 */
+	protected void setCenter() {
+		Dimension screen = this.getToolkit().getScreenSize();
+		Dimension login = this.getSize();
+		this.setLocation((screen.width - login.width) / 2,
+				(screen.height - login.height) / 2);
+	}
 
 	public MainFrame(DB database, String loginName) {
 		super("学生信息管理系统");
@@ -75,6 +89,7 @@ public class MainFrame extends JFrame implements ActionListener {
 		this.database = database;
 		this.dialog = new StudentDialog(this);
 		this.admin = new AdminFrame(database, loginName);
+		this.author = new Author();
 
 		// 设置布局管理器
 		GridBagLayout layout = new GridBagLayout();
@@ -102,12 +117,6 @@ public class MainFrame extends JFrame implements ActionListener {
 
 		// 获得所有学生,建立表格
 		this.students = database.getAllStudent();
-		// TODO 删除以下几行代码
-		for (Student e : students)
-			System.out.println("INSERT INTO Student VALUES('" + e.no + "',"
-					+ "'" + e.name + "'," + "'" + e.sex + "'," + "'"
-					+ e.birthday + "'," + "'" + e.address + "'," + "'" + e.tel
-					+ "'," + "'" + e.email + "')");
 		sort(students);
 		this.tableModel = new StudentTableModel(students);
 		table = new JTable(this.tableModel);
@@ -167,6 +176,11 @@ public class MainFrame extends JFrame implements ActionListener {
 
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		pack();
+		setCenter();
+		Point loc = this.getLocation();
+		dialog.setLocation(loc);
+		admin.setLocation(loc);
+		author.setLocation(loc);
 	}
 
 	/**
@@ -421,12 +435,11 @@ public class MainFrame extends JFrame implements ActionListener {
 				System.exit(0);
 			else if (action.equals("resort"))
 				MainFrame.this.updateDisplay();
-			else if (action.equals("admin")) {
-				admin.setLocation(MainFrame.this.getLocation());
+			else if (action.equals("admin"))
 				admin.setVisible(true);
-			} else if (action.equals("author"))
-				;// TODO 弹出作者信息
-			else if (action.equals("add"))
+			else if (action.equals("author")) {
+				author.setVisible(true);
+			} else if (action.equals("add"))
 				add();
 			else if (action.equals("remove"))
 				remove();

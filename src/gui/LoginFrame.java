@@ -98,7 +98,6 @@ public class LoginFrame extends JFrame implements ActionListener {
 		String password = String.copyValueOf(this.passwordField.getPassword());
 		if (this.database.login(name, password)) {// µÇÂ¼³É¹¦
 			MainFrame frame = new MainFrame(database, name);
-			frame.setLocation(this.getLocation());
 			this.dispose();
 			frame.setVisible(true);
 		} else
