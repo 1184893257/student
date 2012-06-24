@@ -36,6 +36,10 @@ public class MainFrame extends JFrame implements ActionListener {
 	 * 单个学生信息的添加\修改对话框
 	 */
 	protected StudentDialog dialog;
+	/**
+	 * 管理员窗体
+	 */
+	protected AdminFrame admin;
 
 	// 一下是与排序相关的单选可选按钮
 	/**
@@ -65,11 +69,12 @@ public class MainFrame extends JFrame implements ActionListener {
 	 */
 	protected String nameOrNo;
 
-	public MainFrame(DB database) {
+	public MainFrame(DB database, String loginName) {
 		super("学生信息管理系统");
 
 		this.database = database;
 		this.dialog = new StudentDialog(this);
+		this.admin = new AdminFrame(database, loginName);
 
 		// 设置布局管理器
 		GridBagLayout layout = new GridBagLayout();
@@ -97,6 +102,12 @@ public class MainFrame extends JFrame implements ActionListener {
 
 		// 获得所有学生,建立表格
 		this.students = database.getAllStudent();
+		// TODO 删除以下几行代码
+		for (Student e : students)
+			System.out.println("INSERT INTO Student VALUES('" + e.no + "',"
+					+ "'" + e.name + "'," + "'" + e.sex + "'," + "'"
+					+ e.birthday + "'," + "'" + e.address + "'," + "'" + e.tel
+					+ "'," + "'" + e.email + "')");
 		sort(students);
 		this.tableModel = new StudentTableModel(students);
 		table = new JTable(this.tableModel);
@@ -122,6 +133,8 @@ public class MainFrame extends JFrame implements ActionListener {
 		});
 
 		// 表格监听delete按键删除一个学生
+		// 一次只能选一行
+		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.addKeyListener(new KeyAdapter() {
 
 			@Override
@@ -152,7 +165,7 @@ public class MainFrame extends JFrame implements ActionListener {
 		layout.setConstraints(tablePane, c);
 		add(tablePane);
 
-		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		pack();
 	}
 
@@ -405,12 +418,13 @@ public class MainFrame extends JFrame implements ActionListener {
 		@Override
 		public void run() {
 			if (action.equals("exit"))
-				dispose();
+				System.exit(0);
 			else if (action.equals("resort"))
 				MainFrame.this.updateDisplay();
-			else if (action.equals("admin"))
-				;// TODO 弹出管理员管理窗体
-			else if (action.equals("author"))
+			else if (action.equals("admin")) {
+				admin.setLocation(MainFrame.this.getLocation());
+				admin.setVisible(true);
+			} else if (action.equals("author"))
 				;// TODO 弹出作者信息
 			else if (action.equals("add"))
 				add();
@@ -434,8 +448,6 @@ public class MainFrame extends JFrame implements ActionListener {
 			} else
 				JOptionPane.showMessageDialog(MainFrame.this,
 						"未知的动作:" + action, "程序出错", JOptionPane.ERROR_MESSAGE);
-			// TODO delete this
-			// JOptionPane.show
 		}
 	}
 

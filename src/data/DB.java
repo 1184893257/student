@@ -62,6 +62,24 @@ public class DB {
 	}
 
 	/**
+	 * 获得所有管理员的名字
+	 * 
+	 * @return
+	 */
+	public Vector<String> getAllAdmin() {
+		Vector<String> ans = new Vector<String>();
+		String select = "SELECT * FROM ADMIN";
+		try {
+			ResultSet rs = stat.executeQuery(select);
+			while (rs.next())
+				ans.add(rs.getString("NAME").trim());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return ans;
+	}
+
+	/**
 	 * 添加管理员
 	 * 
 	 * @param name

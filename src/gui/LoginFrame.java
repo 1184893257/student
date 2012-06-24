@@ -94,21 +94,16 @@ public class LoginFrame extends JFrame implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// String name = this.nameField.getText();
-		// String password =
-		// String.copyValueOf(this.passwordField.getPassword());
-		// if (this.database.login(name, password)) {// 登录成功
-		// MainFrame frame = new MainFrame();
-		// frame.setLocation(this.getLocation());
-		// this.dispose();
-		// frame.setVisible(true);
-		// } else
-		// JOptionPane.showMessageDialog(null, "用户名或密码错误", "登录失败",
-		// JOptionPane.WARNING_MESSAGE);
-		MainFrame frame = new MainFrame(database);
-		frame.setLocation(this.getLocation());
-		this.dispose();
-		frame.setVisible(true);
+		String name = this.nameField.getText();
+		String password = String.copyValueOf(this.passwordField.getPassword());
+		if (this.database.login(name, password)) {// 登录成功
+			MainFrame frame = new MainFrame(database, name);
+			frame.setLocation(this.getLocation());
+			this.dispose();
+			frame.setVisible(true);
+		} else
+			JOptionPane.showMessageDialog(null, "用户名或密码错误", "登录失败",
+					JOptionPane.WARNING_MESSAGE);
 	}
 
 }
