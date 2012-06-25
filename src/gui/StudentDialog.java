@@ -207,8 +207,9 @@ public class StudentDialog extends JDialog implements ActionListener {
 
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				final int days = getDaysOfMonth((int) year.getSelectedItem(),
-						(int) month.getSelectedItem());
+				final int days = getDaysOfMonth(
+						(Integer) year.getSelectedItem(),
+						(Integer) month.getSelectedItem());
 				StudentDialog.this.setDay(days);
 			}
 
@@ -267,12 +268,14 @@ public class StudentDialog extends JDialog implements ActionListener {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(new Date());
 		final int thisyear = cal.get(Calendar.YEAR);
-		cal.set((int) year.getSelectedItem(),
-				(int) month.getSelectedItem() - 1, (int) day.getSelectedItem());
+		cal.set((Integer) year.getSelectedItem(),
+				(Integer) month.getSelectedItem() - 1,
+				(Integer) day.getSelectedItem());
 		java.sql.Date date = new java.sql.Date(cal.getTimeInMillis());
 		this.student = new Student(no.getText(), name.getText(), thisyear
-				- (int) year.getSelectedItem(), (String) sex.getSelectedItem(),
-				date, address.getText(), tel.getText(), email.getText());
+				- (Integer) year.getSelectedItem(),
+				(String) sex.getSelectedItem(), date, address.getText(),
+				tel.getText(), email.getText());
 		this.dispose();
 	}
 }
