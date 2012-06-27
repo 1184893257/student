@@ -24,7 +24,7 @@ public class Author extends JFrame {
 				+ "</td></tr>";
 		names += "<tr>" + "<td align=\"center\" colspan=\"" + cols / 2 + "\">"
 				+ "杨凯强" + "</td>" + "<td align=\"center\" colspan=\"" + cols
-				/ 2 + "\">" + "陈天勇" + "</td>" + "</tr>";
+				/ 2 + "\">" + "陈天泳" + "</td>" + "</tr>";
 		names += "<tr><td align=\"center\" colspan=\"" + cols + "\">"
 				+ "详细设计与编码" + "</td></tr>";
 		names += "<tr><td align=\"center\" colspan=\"" + cols + "\">" + "刘乔羽"
