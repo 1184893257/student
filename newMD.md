@@ -16,7 +16,7 @@ this is the bottom
 
 * bbb
 
-    jjjj
+    ![testimg][]
 
     1. I'm code, no doubt!
     1. all right now?
