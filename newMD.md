@@ -1,3 +1,6 @@
-1. 
-aaa
-2. bbb英文名为 *Linux kernerl Development* ，
+　　而最新的内核由于巨大的代码量，
+ 要达到源代码的完全注释应该是不可能的了，
+ 但是从大粒度上进行的分析也是很有价值的。
+ 《Linux内核设计与实现》英文名为 *Linux kernerl Development* ，
+ 是 *Robert Love* 所著，陈莉君、康华、张波 翻译的，
+ 我从这本书中了解了最新内核的进程调度思想。
